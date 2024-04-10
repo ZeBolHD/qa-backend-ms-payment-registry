@@ -1,29 +1,56 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { PaymentRegistryDto } from "./dto";
 import { PrismaService } from "src/prisma/prisma.service";
 import { Status } from "@prisma/client";
 import { RegistryResponse } from "./responses";
+import { PinoLogger } from "nestjs-pino";
 
 @Injectable()
 export class RegistryService {
-  constructor(private readonly prismaService: PrismaService) {}
-
-  private readonly logger = new Logger(RegistryService.name);
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly logger: PinoLogger,
+  ) {
+    this.logger.setContext(RegistryService.name);
+  }
 
   async registerPayment(dto: PaymentRegistryDto): Promise<RegistryResponse> {
-    this.logger.log("------------------- Payment registering -------------------");
-
-    this.logger.verbose("User ID: " + dto.userId);
-    this.logger.verbose("Movie ID: " + dto.movieId);
-    this.logger.verbose("Total: " + dto.total);
-    this.logger.verbose("Amount: " + dto.amount);
-    this.logger.verbose("Card checker status: " + dto.status);
+    this.logger.info(
+      {
+        user: {
+          id: dto.userId,
+        },
+        movie: {
+          id: dto.movieId,
+        },
+        payment: {
+          total: dto.total,
+          amount: dto.amount,
+          status: dto.status,
+        },
+      },
+      "Register payment",
+    );
 
     const status = await this.setPaymentToDatabase(dto);
 
-    this.logger.verbose("Registry status: " + status);
-
-    this.logger.log("------------------- Payment registered  -------------------");
+    this.logger.info(
+      {
+        user: {
+          id: dto.userId,
+        },
+        movie: {
+          id: dto.movieId,
+        },
+        payment: {
+          total: dto.total,
+          amount: dto.amount,
+          status: dto.status,
+        },
+        registryStatus: status,
+      },
+      "Registered payment",
+    );
 
     return {
       status,
@@ -42,8 +69,23 @@ export class RegistryService {
         },
       })
       .catch((e) => {
-        console.log(e);
-        this.logger.error("Database error. Payment not registered");
+        this.logger.debug(e, "Failed to register payment");
+        this.logger.error(
+          {
+            user: {
+              id: dto.userId,
+            },
+            movie: {
+              id: dto.movieId,
+            },
+            payment: {
+              total: dto.total,
+              amount: dto.amount,
+              status: dto.status,
+            },
+          },
+          "Failed to register payment. Payment not registered",
+        );
         return Status.ERROR;
       });
 
