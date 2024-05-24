@@ -18,21 +18,27 @@ export class RegistryService {
     this.logger.info(
       {
         user: {
-          id: dto.userId,
+          id: dto?.userId || "unknown",
         },
         movie: {
-          id: dto.movieId,
+          id: dto?.movieId || "unknown",
         },
         payment: {
-          total: dto.total,
-          amount: dto.amount,
-          status: dto.status,
+          total: dto?.total || "unknown",
+          amount: dto?.amount || "unknown",
+          status: dto?.status || "unknown",
         },
       },
       "Register payment",
     );
 
     const status = await this.setPaymentToDatabase(dto);
+
+    if (status === Status.ERROR) {
+      return {
+        status,
+      };
+    }
 
     this.logger.info(
       {
@@ -73,15 +79,15 @@ export class RegistryService {
         this.logger.error(
           {
             user: {
-              id: dto.userId,
+              id: dto?.userId || "unknown",
             },
             movie: {
-              id: dto.movieId,
+              id: dto?.movieId || "unknown",
             },
             payment: {
-              total: dto.total,
-              amount: dto.amount,
-              status: dto.status,
+              total: dto?.total || "unknown",
+              amount: dto?.amount || "unknown",
+              status: dto?.status || "unknown",
             },
           },
           "Failed to register payment. Payment not registered",
