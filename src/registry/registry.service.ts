@@ -92,7 +92,7 @@ export class RegistryService {
           },
           "Failed to register payment. Payment not registered",
         );
-        return Status.ERROR;
+        return null;
       });
 
     if (!payment) {
