@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: backend-ms-payment-registry
-          image: registry.dev-cinescope.store/qa-backend-ms-payment-registry:latest
+          image: zebolhd/qa-backend-ms-payment-registry:latest
           resources:
             requests:
               memory: "64Mi"
@@ -33,5 +33,3 @@ spec:
                 name: qa-config
             - secretRef:
                 name: qa-secret
-      imagePullSecrets:
-        - name: regcred
